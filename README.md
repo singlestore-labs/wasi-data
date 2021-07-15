@@ -1,7 +1,6 @@
 [wasi-data](https://github.com/WebAssembly/wasi-data) is a proposal to add a WASI module for distributed computation. It includes:
- - an [explainer](docs/Explainer.md), diving into the rationale for this specification
- - the proposed API in [WITX
-   form](https://github.com/WebAssembly/wasi-data/blob/main/phases/ephemeral/witx/wasi_ephemeral_data.witx)
+ - an [explainer](proposals/wasi-data/Explainer.md), diving into the rationale for this specification
+ - the proposed API in WITX form (TODO)
 
 Following the [WASI proposal
 process](https://github.com/WebAssembly/WASI/blob/master/docs/Process.md), this repository is a
