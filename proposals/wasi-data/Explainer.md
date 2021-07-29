@@ -13,7 +13,7 @@ The attributes of Apache Spark that have led to its success include:
 - Fault Tolerant
 - Lazy Evaluation of compute and transformations.
 
-There are a number of distributed systems that may benefit from an interoperable data API, decoupling from exisiting systems like Apache Spark and Hadoop, like databases. By moving compute next to the data, we can not only simplify the system stack, but i-mprove performance, security, safety, and resiliency.
+There are a number of distributed systems that may benefit from an interoperable data API, decoupling from exisiting systems like Apache Spark and Hadoop, like databases. By moving compute next to the data, we can not only simplify the system stack, but improve performance, security, safety, and resiliency.
 
 ## Goals
 
@@ -38,27 +38,18 @@ This design builds on active proposals for WASM and WASI like interface types fo
 
 Interface-types allow a wide variety of value representations, avoiding the need for intermediate (de)serialization steps. Ideally, this will even include lazily-generated data structures (e.g., via iterators, generators or comprehensions).
 
-runtime responsible for maintaining the computational DAG
+Implementations of the map-reduce paradigm requires a way to connect the processes performing the map and reduce phases. Because this is for massive data, the various runtimes may have unique and domain specific methods
+for managing the data, e.g. distributed file system, data sharding, etc. This means that the runtime must
+be responsible for maintaining the computational DAG.
 
 ```bash
-# TODO create the acutal API, we know that it will be map, reduce, join
-RDD<Row<A,B,C…>>
+# TODO create the acutal API, we know that it will have traits like map, reduce, join
+# We will need to be able to create windows and function closures
+DataSet<Row<A,B,C…>>
 
 map(func (Row<A,B,C>) Row<…>)
 
-mapPartitions(func (iter<Row<A,B,C>>) iter<Row<…>>)
-
-reduce(memo Row<output>, func(memo Row<output>, input Row<original>) memo Row<output>)
-
-createDataFrame([
-    Row(a=1, b=2., c='string1', d=date(2000, 1, 1), e=datetime(2000, 1, 1, 12, 0)),
-    Row(a=2, b=3., c='string2', d=date(2000, 2, 1), e=datetime(2000, 1, 2, 12, 0)),
-    Row(a=4, b=5., c='string3', d=date(2000, 3, 1), e=datetime(2000, 1, 3, 12, 0))
-])spark.createDataFrame([
-    (1, 2., 'string1', date(2000, 1, 1), datetime(2000, 1, 1, 12, 0)),
-    (2, 3., 'string2', date(2000, 2, 1), datetime(2000, 1, 2, 12, 0)),
-    (3, 4., 'string3', date(2000, 3, 1), datetime(2000, 1, 3, 12, 0))
-], schema='a long, b double, c string, d date, e timestamp')
+reduce(Row<out>, func(Row<out>, Row<orig>) Row<out>)
 ```
 
 ## How does this relate to wasi-nn?
@@ -67,46 +58,27 @@ Some data transformations may run ML against a given data frame.
 
 The API of wasi-nn will allow for hardware acceleration of various implementations.
 This is key for ML workloads.
-A wasm module that runs ML inferncing on a data frame, may also rely on wasi-nn API for acceleration.
+A wasm module that runs ML inferencing on a data frame, may also rely on wasi-nn API for acceleration.
 Potentially wasi-nn's tensor_data could instead be a data frame.
 
-## How does this relate to wasi-crypto?
-
-The concepts around safety and security for the motivations behind wasi-crypto are relevant for wasi-data.
-Absence of undefined behaviors
-All handle types MUST be thread-safe.
-
 ## Similar projects
+
+The following libraries and frameworks expose API's that are similar in nature to wasi-data, and may also benefit from a language-agnostic API for distributed data computation:
 
 - Pandas DataFrame
 - Apache Flink DataStream and Windows
 - Timely DataFlows
 - Similar to distributed and pluggable runtime model of Apache Beam
-    “Dataflow aims to provide an abstraction layer between your code and the execution runtime,”
-
-https://dev.materialize.com/api/rust/transform/trait.Transform.html
-
-Libraries and frameworks that may benefit from a language-agnostic API for distributed data computation:
-- Apache Flink
+  > “Dataflow aims to provide an abstraction layer between your code and the execution runtime”
 
 ## Future
 
-Where can we go from here?
+The API for this proposal has not been solidified. It relies heavily on the interface types proposal and creating
+iterators and generator types from that proposal. The MVP for this should be the MVP set of API's to creat a
+working computational DAG and could be proved out as a POC with an existing framework (e.g. Timely Dataflow).
 
-Support for graph data structures like RDF’s, the basis of the semantic web. The most straightforward data structure for representing an RDF graph or dataset is to store triples or quads with their constituting terms directly in the data structure.
+Something not yet discussed, is support for graph data structures like RDF’s, the basis of the semantic web. The most straightforward data structure for representing an RDF graph or dataset is to store triples or quads with their constituting terms directly in the data structure.
 
-Consolidation of complex systems to composable integrations across language barriers
+Additional API's may build on this, such as a future proposal for `wasi-sql`.
 
-wasi-sql
-
-support for data formats like avro and arrow
-
-## TODO
-
-- include avro type?
-- include create a source connector API for postgres, kafka, etc?
-- wasi-sql?? https://dev.materialize.com/api/rust/sql/all.html
-
-## Tags
-
-- Structured streaming
+Creating interface type libraries for wasm modules to support additional data formats like avro and arrow.
