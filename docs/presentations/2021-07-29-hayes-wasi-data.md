@@ -41,9 +41,7 @@ note: Only time data is moved, is when all of the parallel workers are communica
 
 ---
 
-![wasi-data runtime diagram. Any language compiles to a wasm module that exposes the wasi-data API, loads to a distributed runtime, then those modules are sent to worker nodes. It's the worker nodes that have the wasm runtime embedded and are managing the wasm processes](wasi-data-runtimes.png)
-
-<img data-src="wasi-data-runtimes.png" height="420" width="200" />
+![wasi-data runtime diagram. Any language compiles to a wasm module that exposes the wasi-data API, loads to a distributed runtime, then those modules are sent to worker nodes. It's the worker nodes that have the wasm runtime embedded and are managing the wasm processes](https://github.com/singlestore-labs/wasi-data/blob/main/docs/presentations/wasi-data-runtimes.png?raw=true)
 
 ---
 
