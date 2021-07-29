@@ -41,6 +41,12 @@ note: Only time data is moved, is when all of the parallel workers are communica
 
 ---
 
+![wasi-data runtime diagram. Any language compiles to a wasm module that exposes the wasi-data API, loads to a distributed runtime, then those modules are sent to worker nodes. It's the worker nodes that have the wasm runtime embedded and are managing the wasm processes](wasi-data-runtimes.png)
+
+<img data-src="wasi-data-runtimes.png" height="420" width="200" />
+
+---
+
 ## Real world frameworks based on map-reduce
 
 There are so many
@@ -59,7 +65,6 @@ note: map-reduce is such a fundamental piece of distributed computation
 * ...
 * Google Cloud Dataflow
 * IBM Streams
-* Apache Samza
 * [Twister2](https://twister2.org/)
 * ...
 
@@ -80,7 +85,7 @@ Requires an implementation to connect processes performing map and reduce phases
 
 ## Why WASM and WASI
 
-note: same reasons as everyone else, heterogenous hardware and software, edge, server farmers
+note: same reasons as everyone else, heterogenous hardware and software, edge, server farms
 
 * Portable
 * Host and language-independent
@@ -104,7 +109,3 @@ DataSet<...> reduced = input
   .groupBy(/*define key here*/)
   .reduce(/*do something*/);
 ```
-
----
-
-## phase0
