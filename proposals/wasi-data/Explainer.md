@@ -42,14 +42,102 @@ Implementations of the map-reduce paradigm requires a way to connect the process
 for managing the data, e.g. distributed file system, data sharding, etc. This means that the runtime must
 be responsible for maintaining the computational DAG.
 
+There are essentially two parts to this API.
+
+Part One: How to represent the dataflow computation
+for a runtime host to act as the controller of the DAG.
+The host runtime will need to run various portions of
+that graph on different machines at different times.
+
+For an external runtime to maintain the computational DAG,
+first we need to be able to represent the DAG.
+
+There are two common methods for processing a graph, push vs pull.
+Full transparency, we have not landed on which implementation would be
+best for this use case. The way the we express the computational graph depends on which model
+we select (push vs pull).
+
+We do know that a tree structure is a generic way to define a dataflow
+graph. Each nodes needs to have a kernel and pointers to the inputs.
+The tree's root will be the output of the tree.
+
 ```bash
-# TODO create the acutal API, we know that it will have traits like map, reduce, join
-# We will need to be able to create windows and function closures
-DataSet<Row<A,B,C…>>
+// part one
+// first abis is data app -> host runtime to "provide computational graph"
 
-map(func (Row<A,B,C>) Row<…>)
+Kernel<T> = Iterator<T>
 
-reduce(Row<out>, func(Row<out>, Row<orig>) Row<out>)
+ds1 = query('select * from foo')
+ds2 = query('select * from bar')
+
+new Kernel = {
+    left := ds1.next()
+    right := ds2.next()
+    if left.id == right.id {
+        left.foo = right.foo
+        yield left
+    }
+}
+
+Kernel<T, U, S> = {
+    State: S
+    Next(S, T, next: (U) => void) => Result<(), Error>
+    Output(S, next: (U) => void) => Result<(), Error>
+}
+
+Node = {
+    Kernel
+    Inputs
+}
+```
+
+The module linking proposal is key to the second ABI.
+With module linking, we can contain kernels as nested modules.
+We may also explore a tool called wizer to create the minimum closure.
+
+How do we pass the graph to the host with all required information
+for execution?
+
+Does the graph need to be serialized like wasi-nn?
+
+How does the host run a subset of the graph - i.e. dataflow in dataflow out?
+
+```bash
+// part two
+// host runtime (on various machines) -> wasm module (or extracted closure) to run a portion of the graph
+```
+
+Things to consider
+
+- Fork
+- Shuffle
+- Repartition
+
+## Examples
+
+```bash
+myapp(foo) {
+    df = query("select * from foo")
+    df = df.map(row => if(foo) { row.a.toUpperCase() })
+    if (foo) {
+        df = df.shuffle(df.numpartitions(), row => row.x)
+    }
+    df = df.map(row => row.b.toUpperCase())
+    df.save("out")
+}
+
+dataframe<T: record{x,y,z...}> {
+    select(columnList: list(string)) => dataframe<X: X < T>
+    groupBy(columnList: list(string)) => dataframe<T>
+    limit(n: number) => dataframe<T>
+    sort(columnList: list(string)) => dataframe<T>
+    count(column: string) => dataframe<T>
+
+    map(mapFn<T,X>) => dataframe<X>
+    mapPartitions(mapFn<Iterator<T>,Iterator<X>>) => dataframe<X>
+
+    collect() => Vec<T>
+}
 ```
 
 ## How does this relate to wasi-nn?
