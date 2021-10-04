@@ -68,36 +68,6 @@ We do know that a tree structure is a generic way to define a dataflow
 graph. Each nodes needs to have a kernel and pointers to the inputs.
 The tree's root will be the output of the tree.
 
-```bash
-// part one
-// first abis is data app -> host runtime to "provide computational graph"
-
-Kernel<T> = Iterator<T>
-
-ds1 = query('select * from foo')
-ds2 = query('select * from bar')
-
-new Kernel = {
-    left := ds1.next()
-    right := ds2.next()
-    if left.id == right.id {
-        left.foo = right.foo
-        yield left
-    }
-}
-
-Kernel<T, U, S> = {
-    State: S
-    Next(S, T, next: (U) => void) => Result<(), Error>
-    Output(S, next: (U) => void) => Result<(), Error>
-}
-
-Node = {
-    Kernel
-    Inputs
-}
-```
-
 The module linking proposal is key to the second ABI.
 With module linking, we can contain kernels as nested modules.
 We may also explore a tool called wizer to create the minimum closure.
@@ -107,45 +77,11 @@ for execution?
 
 Does the graph need to be serialized like wasi-nn?
 
-How does the host run a subset of the graph - i.e. dataflow in dataflow out?
-
-```bash
-// part two
-// host runtime (on various machines) -> wasm module (or extracted closure) to run a portion of the graph
-```
-
-Things to consider
+Things to consider:
 
 - Fork
 - Shuffle
 - Repartition
-
-## Examples
-
-```bash
-myapp(foo) {
-    df = query("select * from foo")
-    df = df.map(row => if(foo) { row.a.toUpperCase() })
-    if (foo) {
-        df = df.shuffle(df.numpartitions(), row => row.x)
-    }
-    df = df.map(row => row.b.toUpperCase())
-    df.save("out")
-}
-
-dataframe<T: record{x,y,z...}> {
-    select(columnList: list(string)) => dataframe<X: X < T>
-    groupBy(columnList: list(string)) => dataframe<T>
-    limit(n: number) => dataframe<T>
-    sort(columnList: list(string)) => dataframe<T>
-    count(column: string) => dataframe<T>
-
-    map(mapFn<T,X>) => dataframe<X>
-    mapPartitions(mapFn<Iterator<T>,Iterator<X>>) => dataframe<X>
-
-    collect() => Vec<T>
-}
-```
 
 ## How does this relate to wasi-nn?
 
