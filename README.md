@@ -17,7 +17,7 @@ There are a number of distributed systems that may benefit from an interoperable
 
 ## Goals
 
-Create a resilient and distributable data API that will lead to a portable, host- and language-independent ecosystem of composable WebAssembly modules that support MapReduce and other embarrassingly parallel algorithms.
+Create a resilient and distributable data API that will lead to a portable, host- and language-independent ecosystem of composable WebAssembly modules that can run distributed algorithms.
 
 - Resiliency
 - Enable AOT compilation
@@ -32,7 +32,7 @@ Create a resilient and distributable data API that will lead to a portable, host
 
 ## Proposal
 
-This design builds on active proposals for WASM and WASI like interface types for handles and records, shared-nothing linking, and others to create declared, strongly-typed, and sandboxed WASM modules for runtimes for [embarrassingly parallel](https://en.wikipedia.org/wiki/Embarrassingly_parallel) algorithms.
+This design builds on active proposals for WASM and WASI like interface types for handles and records, shared-nothing linking, and others to create declared, strongly-typed, and sandboxed WASM modules for runtimes for distributed algorithms.
 
 > A shared-nothing architecture partitions a whole application into multiple isolated units that encapsulate their mutable state; shared mutable state is either banned or significantly restricted. When multiple languages are used, then, it's natural to put separate languages into separate isolated units. In raw WebAssembly terms, a natural shared-nothing unit is a module which only imports and exports functions and immutable values, but not memories, tables or mutable globals.
 
