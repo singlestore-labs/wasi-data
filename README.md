@@ -1,13 +1,6 @@
-# Motivation
+# Summary
 
-Define a portable, modular, runtime-independent, and WebAssembly-native API
-   to serve as a system interface which can be used by WebAssembly code to
-   interact with the outside world, that preserves the essential sandboxed
-   nature of WebAssembly through a [Capability-based] API design.
-
-## Summary
-
-This proposal is for a new WASI API that would allow distributed systems to create computational DAG's with WASM modules using map, filter, and join semantics.
+The goal of this proposal is to define a mechanism for programs compiled to WASM to represent and drive distributed algorithms, taking advantage of distributed storage and computation systems.
 
 Apache Spark is one such example. The main abstraction Spark provides is a resilient distributed dataset (RDD), which is a fault-tolerant collection of elements that can be operated on in parallel.
 
