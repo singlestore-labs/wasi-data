@@ -46,7 +46,7 @@ Second, we need a way to make lambdas a first class concept in Wasm. This means 
 
 ### wasi-nn
 
-Some distributed operations may need to use wasi-nn to execute ML/AI algorithsm in a performant way. wasi-data may make additional optimizations to work well with wasi-nn, however it will mostly be a higher order concept.
+Some distributed operations may need to use wasi-nn to execute ML/AI algorithms in a performant way. Wasi-data may make additional optimizations to work well with wasi-nn, however it will mostly be a higher order concept.
 
 ### wasi-parallel
 
