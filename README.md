@@ -40,7 +40,7 @@ First, we need a way to communicate a DAG of computation between client and host
 2. Create our own tree datastructure that can be used to communicate a desired distributed operation from the client to host.
 3. Rather than supporting an entire logical plan, provide an API for registering Wasm powered UDFs, TVFs, and UDAs. Then provide an API for executing SQL queries and either collecting them or streaming the result into a temporary table for followup computation.
 
-Second, we need a way to make lambdas a first class concept in WASM. This means passing a function reference to the host in a way that allows the host to serialize and send that function (with all it's required state and dependencies) to another machine (or thread, or process) for execution. This allows a single WASM module to define everything it needs for a complete distributed operation. We are evaluating the idea of embedding each lambda function into the Wasm file as a separate module to achieve this goal.
+Second, we need a way to make lambdas a first class concept in Wasm. This means passing a function reference to the host in a way that allows the host to serialize and send that function (with all it's required state and dependencies) to another machine (or thread, or process) for execution. This allows a single Wasm module to define everything it needs for a complete distributed operation. We are evaluating the idea of embedding each lambda function into the Wasm file as a separate module to achieve this goal.
 
 ## How does this relate to wasi-nn and wasi-parallel?
 
