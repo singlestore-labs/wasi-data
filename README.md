@@ -1,6 +1,6 @@
 # Summary
 
-The goal of this proposal is to define a mechanism for programs compiled to WASM to represent and drive distributed algorithms, taking advantage of distributed storage and computation systems.
+The goal of this proposal is to define a mechanism for programs compiled to Wasm to represent and drive distributed algorithms, taking advantage of distributed storage and computation systems.
 
 Apache Spark is one such example. The main abstraction Spark provides is a resilient distributed dataset (RDD), which is a fault-tolerant collection of elements that can be operated on in parallel.
 
@@ -23,7 +23,7 @@ Create a resilient and distributable data API that will lead to a portable, host
 - Enable AOT compilation
 - Portable
 - Host and language-independent
-- Composable WASM modules
+- Composable Wasm modules
 - Highly performant distributed computation
 - Write data pipelines in a familiar language
 - Large-scale batch and streaming data processing
@@ -32,15 +32,15 @@ Create a resilient and distributable data API that will lead to a portable, host
 
 ## Proposal
 
-This design is focused on allowing a WASM program to work with distributed data. This stands on the shoulders of other active proposals for WASM and WASI including: interface types, modules, and shared-nothing linking. To represent distributed algorithms, wasi-data needs to provide a mechanism for a WASM client to push a distributed query plan to it's host, and monitor that operation through to completion. There are many ways to achieve this goal, which is why we are still early in the design process for wasi-data. But here is what we are thinking so far:
+This design is focused on allowing a Wasm program to work with distributed data. This stands on the shoulders of other active proposals for Wasm and WASI including: interface types, modules, and shared-nothing linking. To represent distributed algorithms, wasi-data needs to provide a mechanism for a Wasm client to push a distributed query plan to it's host, and monitor that operation through to completion. There are many ways to achieve this goal, which is why we are still early in the design process for wasi-data. But here is what we are thinking so far:
 
 First, we need a way to communicate a DAG of computation between client and host. We are evaluating multiple solutions to this problem:
 
 1. Define the DAG as a [Substrait](https://substrait.io/) plan with extensions for defining custom operators and expressions.
 2. Create our own tree datastructure that can be used to communicate a desired distributed operation from the client to host.
-3. Rather than supporting an entire logical plan, provide an API for registering WASM powered UDFs, TVFs, and UDAs. Then provide an API for executing SQL queries and either collecting them or streaming the result into a temporary table for followup computation.
+3. Rather than supporting an entire logical plan, provide an API for registering Wasm powered UDFs, TVFs, and UDAs. Then provide an API for executing SQL queries and either collecting them or streaming the result into a temporary table for followup computation.
 
-Second, we need a way to make lambdas a first class concept in WASM. This means passing a function reference to the host in a way that allows the host to serialize and send that function (with all it's required state and dependencies) to another machine (or thread, or process) for execution. This allows a single WASM module to define everything it needs for a complete distributed operation. We are evaluating the idea of embedding each lambda function into the WASM file as a separate module to achieve this goal.
+Second, we need a way to make lambdas a first class concept in WASM. This means passing a function reference to the host in a way that allows the host to serialize and send that function (with all it's required state and dependencies) to another machine (or thread, or process) for execution. This allows a single WASM module to define everything it needs for a complete distributed operation. We are evaluating the idea of embedding each lambda function into the Wasm file as a separate module to achieve this goal.
 
 ## How does this relate to wasi-nn and wasi-parallel?
 
