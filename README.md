@@ -56,14 +56,8 @@ Similar to wasi-nn, some distributed operations may use wasi-parallel to process
 
 The following libraries and frameworks expose API's that are similar in nature to wasi-data, and may also benefit from a language-agnostic API for distributed data computation:
 
-- Pandas DataFrame
-- Apache Flink DataStream and Windows
-- Timely DataFlows
-- Similar to distributed and pluggable runtime model of Apache Beam
-  > “Dataflow aims to provide an abstraction layer between your code and the execution runtime”
-
-## Future
-
-The API for this proposal has not been solidified. It relies heavily on the interface types proposal and creating
-iterators and generator types from that proposal. The MVP for this should be the MVP set of API's to create a
-working computational DAG and could be proved out as a POC with an existing open source distributed system.
+- Pandas
+- Apache Flink
+- Timely DataFlow
+- Substrait
+- Apache Beam
