@@ -32,58 +32,25 @@ Create a resilient and distributable data API that will lead to a portable, host
 
 ## Proposal
 
-This design builds on active proposals for WASM and WASI like interface types for handles and records, shared-nothing linking, and others to create declared, strongly-typed, and sandboxed WASM modules for runtimes for distributed algorithms.
+This design is focused on allowing a WASM program to work with distributed data. This stands on the shoulders of other active proposals for WASM and WASI including: interface types, modules, and shared-nothing linking. To represent distributed algorithms, wasi-data needs to provide a mechanism for a WASM client to push a distributed query plan to it's host, and monitor that operation through to completion. There are many ways to achieve this goal, which is why we are still early in the design process for wasi-data. But here is what we are thinking so far:
 
-> A shared-nothing architecture partitions a whole application into multiple isolated units that encapsulate their mutable state; shared mutable state is either banned or significantly restricted. When multiple languages are used, then, it's natural to put separate languages into separate isolated units. In raw WebAssembly terms, a natural shared-nothing unit is a module which only imports and exports functions and immutable values, but not memories, tables or mutable globals.
+First, we need a way to communicate a DAG of computation between client and host. We are evaluating multiple solutions to this problem:
 
-Interface-types allow a wide variety of value representations, avoiding the need for intermediate (de)serialization steps. Ideally, this will even include lazily-generated data structures (e.g., via iterators, generators or comprehensions).
+1. Define the DAG as a [Substrait](https://substrait.io/) plan with extensions for defining custom operators and expressions.
+2. Create our own tree datastructure that can be used to communicate a desired distributed operation from the client to host.
+3. Rather than supporting an entire logical plan, provide an API for registering WASM powered UDFs, TVFs, and UDAs. Then provide an API for executing SQL queries and either collecting them or streaming the result into a temporary table for followup computation.
 
-Implementations of the map-reduce paradigm requires a way to connect the processes performing the map and reduce phases. Because this is for massive data, the various runtimes may have unique and domain specific methods
-for managing the data, e.g. distributed file system, data sharding, etc. This means that the runtime must
-be responsible for maintaining the computational DAG.
+Second, we need a way to make lambdas a first class concept in WASM. This means passing a function reference to the host in a way that allows the host to serialize and send that function (with all it's required state and dependencies) to another machine (or thread, or process) for execution. This allows a single WASM module to define everything it needs for a complete distributed operation. We are evaluating the idea of embedding each lambda function into the WASM file as a separate module to achieve this goal.
 
-There are essentially two parts to this API.
+## How does this relate to wasi-nn and wasi-parallel?
 
-Part One: How to represent the dataflow computation
-for a runtime host to act as the controller of the DAG.
-The host runtime will need to run various portions of
-that graph on different machines at different times.
+### wasi-nn
 
-For an external runtime to maintain the computational DAG,
-first we need to be able to represent the DAG.
+Some distributed operations may need to use wasi-nn to execute ML/AI algorithsm in a performant way. wasi-data may make additional optimizations to work well with wasi-nn, however it will mostly be a higher order concept.
 
-There are two common methods for processing a graph, push vs pull.
-Full transparency, we have not landed on which implementation would be
-best for this use case. The way the we express the computational graph depends on which model
-we select (push vs pull).
+### wasi-parallel
 
-We do know that a tree structure is a generic way to define a dataflow
-graph. Each nodes needs to have a kernel and pointers to the inputs.
-The tree's root will be the output of the tree.
-
-The module linking proposal is key to the second ABI.
-With module linking, we can contain kernels as nested modules.
-We may also explore a tool called wizer to create the minimum closure.
-
-How do we pass the graph to the host with all required information
-for execution?
-
-Does the graph need to be serialized like wasi-nn?
-
-Things to consider:
-
-- Fork
-- Shuffle
-- Repartition
-
-## How does this relate to wasi-nn?
-
-Some data transformations may run ML against a given data frame.
-
-The API of wasi-nn will allow for hardware acceleration of various implementations.
-This is key for ML workloads.
-A wasm module that runs ML inferencing on a data frame, may also rely on wasi-nn API for acceleration.
-Potentially wasi-nn's tensor_data could instead be a data frame.
+Similar to wasi-nn, some distributed operations may use wasi-parallel to process vectors of data in parallel. This could be especially powerful if wasi-parallel could gain partition local access to GPUs which is one of their goals. In this way, wasi-data and wasi-parallel will work together to define extremely high performance distributed algorithms which take advantage of whatever hardware is available in the cluster.
 
 ## Similar projects
 
@@ -98,11 +65,5 @@ The following libraries and frameworks expose API's that are similar in nature t
 ## Future
 
 The API for this proposal has not been solidified. It relies heavily on the interface types proposal and creating
-iterators and generator types from that proposal. The MVP for this should be the MVP set of API's to creat a
-working computational DAG and could be proved out as a POC with an existing framework (e.g. Timely Dataflow).
-
-Something not yet discussed, is support for graph data structures like RDF’s, the basis of the semantic web. The most straightforward data structure for representing an RDF graph or dataset is to store triples or quads with their constituting terms directly in the data structure.
-
-Additional API's may build on this, such as a future proposal for `wasi-sql`.
-
-Creating interface type libraries for wasm modules to support additional data formats like avro and arrow.
+iterators and generator types from that proposal. The MVP for this should be the MVP set of API's to create a
+working computational DAG and could be proved out as a POC with an existing open source distributed system.
